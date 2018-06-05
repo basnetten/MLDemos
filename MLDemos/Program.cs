@@ -9,18 +9,7 @@ namespace MLDemos
 	{
 		public static void Main(string[] args)
 		{
-			// 2 x 2 NN
-			Vector input = Vector.FromArray(new[] { 1.0, 0.5 });
-			Matrix w1 = new Matrix().FromArray(new[,]
-			{
-				{ 0.9, 0.2 },
-				{ 0.3, 0.8 },
-			});
-			Vector v2  = w1.Mul(input);
-			Vector v2o = v2.ApplySigmoid();
-			Console.WriteLine($"2x2 out: {v2o}");
-
-			NNet nn2x2 = new NNet(1)
+			NNet nn2X2 = new NNet(1)
 			{
 				Input = Vector.FromArray(new[] { 1.0, 0.5 }),
 				Weights = new[]
@@ -32,32 +21,10 @@ namespace MLDemos
 					}),
 				}
 			};
+			nn2X2.FeedForward();
+			Console.WriteLine($"nn2x2 out: {nn2X2.Output}");
 
-			nn2x2.FeedForward();
-			Console.WriteLine($"nn2x2 out: {nn2x2.Output}");
-
-			// 3 x 3 NN
-			Vector in3x3 = Vector.FromArray(new[] { 0.9, 0.2, 0.8 });
-			Matrix w1_3x3 = new Matrix().FromArray(new[,]
-			{
-				{ 0.9, 0.3, 0.4 },
-				{ 0.2, 0.8, 0.2 },
-				{ 0.1, 0.5, 0.6 },
-			});
-			Matrix w2_3x3 = new Matrix().FromArray(new[,]
-			{
-				{ 0.3, 0.7, 0.5 },
-				{ 0.6, 0.5, 0.2 },
-				{ 0.8, 0.1, 0.9 },
-			});
-			Vector in3x3_1 = w1_3x3.Mul(in3x3);
-			Vector o3x3_1  = in3x3_1.ApplySigmoid();
-//			Console.WriteLine($"3x3 hidden: {o3x3_1}");
-			Vector in3x3_2 = w2_3x3.Mul(o3x3_1);
-			Vector o3x3_2  = in3x3_2.ApplySigmoid();
-			Console.WriteLine($"3x3 out: {o3x3_2}");
-
-			NNet nn3x3 = new NNet(2)
+			NNet nn3X3 = new NNet(2)
 			{
 				Input = Vector.FromArray(new[] { 0.9, 0.2, 0.8 }),
 				Weights = new[]
@@ -76,8 +43,8 @@ namespace MLDemos
 					})
 				}
 			};
-			nn3x3.FeedForward();
-			Console.WriteLine($"nn3x3 out: {nn3x3.Output}");
+			nn3X3.FeedForward();
+			Console.WriteLine($"nn3x3 out: {nn3X3.Output}");
 		}
 
 		public class NNet
