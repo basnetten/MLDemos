@@ -25,7 +25,7 @@ namespace MLDemos
 				Input = Vector.FromArray(new[] { 1.0, 0.5 }),
 				Weights = new[]
 				{
-					new Matrix().FromArray(new double[,]
+					new Matrix().FromArray(new[,]
 					{
 						{ 0.9, 0.2 },
 						{ 0.3, 0.8 },
@@ -52,10 +52,32 @@ namespace MLDemos
 			});
 			Vector in3x3_1 = w1_3x3.Mul(in3x3);
 			Vector o3x3_1  = in3x3_1.ApplySigmoid();
-			Console.WriteLine($"3x3 hidden: {o3x3_1}");
+//			Console.WriteLine($"3x3 hidden: {o3x3_1}");
 			Vector in3x3_2 = w2_3x3.Mul(o3x3_1);
 			Vector o3x3_2  = in3x3_2.ApplySigmoid();
 			Console.WriteLine($"3x3 out: {o3x3_2}");
+
+			NNet nn3x3 = new NNet(2)
+			{
+				Input = Vector.FromArray(new[] { 0.9, 0.2, 0.8 }),
+				Weights = new[]
+				{
+					new Matrix().FromArray(new[,]
+					{
+						{ 0.9, 0.3, 0.4 },
+						{ 0.2, 0.8, 0.2 },
+						{ 0.1, 0.5, 0.6 },
+					}),
+					new Matrix().FromArray(new[,]
+					{
+						{ 0.3, 0.7, 0.5 },
+						{ 0.6, 0.5, 0.2 },
+						{ 0.8, 0.1, 0.9 },
+					})
+				}
+			};
+			nn3x3.FeedForward();
+			Console.WriteLine($"nn3x3 out: {nn3x3.Output}");
 		}
 
 		public class NNet
@@ -63,7 +85,7 @@ namespace MLDemos
 			public NNet(int hiddenLayerCount)
 			{
 				HiddenLayerCount = hiddenLayerCount;
-				HiddenLayers = new Vector[hiddenLayerCount + 1];
+				HiddenLayers     = new Vector[hiddenLayerCount + 1];
 			}
 
 			public Vector Input
@@ -71,9 +93,9 @@ namespace MLDemos
 				set => HiddenLayers[0] = value;
 			}
 
-			public int HiddenLayerCount { get; set; }
-			public Matrix[] Weights      { get; set; }
-			public Vector[] HiddenLayers { get; }
+			public int      HiddenLayerCount { get; set; }
+			public Matrix[] Weights          { get; set; }
+			public Vector[] HiddenLayers     { get; }
 
 			public Vector Output => HiddenLayers.Last();
 
