@@ -45,6 +45,31 @@ namespace MLDemos
 			};
 			nn3X3.FeedForward();
 			Console.WriteLine($"nn3x3 out: {nn3X3.Output}");
+
+			NNet xor = new NNet(1)
+			{
+				Input = Vector.FromArray(new[] { 1.0, 0.0 }),
+				Weights = new[]
+				{
+					new Matrix().FromArray(new[,]
+					{
+						{ 0.9, 0.2 },
+						//{ 0.3 }, //, 0.8 },
+					}),
+				}
+			};
+			xor.FeedForward();
+			Console.WriteLine($"XOR: {xor.Output}");
+			xor.BackPropogate(new[] { 0.1 }); // Expect 0 (becomes 0.1).
+			xor.FeedForward();
+			Console.WriteLine($"XOR: {xor.Output}");
+			for (int i = 0; i < 100000; i++)
+			{
+				xor.FeedForward();
+				xor.BackPropogate(new[] { 0.9 }); // Expect 0 (becomes 0.1).
+			}
+			xor.FeedForward();
+			Console.WriteLine($"XOR: {xor.Output}");
 		}
 
 		public class NNet
@@ -60,9 +85,11 @@ namespace MLDemos
 				set => HiddenLayers[0] = value;
 			}
 
-			public int      HiddenLayerCount { get; set; }
-			public Matrix[] Weights          { get; set; }
-			public Vector[] HiddenLayers     { get; }
+			public int HiddenLayerCount { get; set; }
+
+			// Rows is destination, Col is source.
+			public Matrix[] Weights      { get; set; }
+			public Vector[] HiddenLayers { get; }
 
 			public Vector Output => HiddenLayers.Last();
 
@@ -70,43 +97,82 @@ namespace MLDemos
 			{
 				for (int i = 0; i < HiddenLayerCount; i++)
 				{
-					HiddenLayers[i + 1] = Weights[i].Mul(HiddenLayers[i]).ApplySigmoid();
+					HiddenLayers[i + 1] = ((Vector) Weights[i].Mul((Matrix) HiddenLayers[i])).ApplySigmoid();
+				}
+			}
+
+			public void BackPropogate(double[] expectedOutput)
+			{
+				double[] expected = expectedOutput;
+				for (int currentLayer = HiddenLayerCount; currentLayer >= 1; currentLayer--)
+				{
+					// Retrieve weights for layer.
+					IMatrix   w  = Weights[currentLayer - 1];
+					double[,] dw = new double[w.RowCount, w.ColCount];
+
+					for (int destNodeI = 0; destNodeI < HiddenLayers[currentLayer].Count; destNodeI++)
+					{
+						double valCurrentDest  = HiddenLayers[currentLayer][destNodeI];
+						Vector valsSourceNodes = HiddenLayers[currentLayer - 1];
+
+						double error = expected[destNodeI] - valCurrentDest;
+
+						double sigma = 0d;
+						for (int sourceNodeI = 0; sourceNodeI < valsSourceNodes.Count; sourceNodeI++)
+						{
+							// Get the weight for this set.
+							sigma += valsSourceNodes[sourceNodeI] * w[destNodeI, sourceNodeI];
+						}
+
+						double sigmoid = Sigmoid(sigma);
+
+						double total = -error * sigmoid * (1 - sigmoid) * HiddenLayers[currentLayer][destNodeI];
+
+						for (int sourceNodeI = 0; sourceNodeI < valsSourceNodes.Count; sourceNodeI++)
+						{
+							dw[destNodeI, sourceNodeI] += -(total * w[destNodeI, sourceNodeI] * 0.1); // TODO learnrate
+						}
+
+//						Console.WriteLine(total);
+					}
+
+					Weights[currentLayer - 1] += new Matrix().FromArray(dw);
 				}
 			}
 		}
 
 		#region Extensions
 
-		// TODO Use DataStructures implementation once released.
-		private static Vector Mul(this Matrix m, Vector v)
-		{
-			Matrix res = m * new Matrix().FromArray(v.ToMultiArray());
-			return FromMatrix(res);
-		}
-
-		// TODO Use DataStructures implementation once released.
-		private static double[,] ToMultiArray(this Vector v)
-		{
-			double[,] res = new double[v.Count, 1];
-			for (int i = 0; i < v.Count; i++)
-			{
-				res[i, 0] = v[i];
-			}
-
-			return res;
-		}
-
-		// TODO Use DataStructures implementation once released.
-		private static Vector FromMatrix(IMatrix m)
-		{
-			double[] data = new double [m.RowCount];
-			for (int i = 0; i < m.RowCount; i++)
-			{
-				data[i] = m[i, 0];
-			}
-
-			return Vector.FromArray(data);
-		}
+//		// TODO Use DataStructures implementation once released.
+//		private static Vector Mul(this Matrix m, Vector v)
+//		{
+//			Matrix res = m * new Matrix().FromArray(v.ToMultiArray());
+//			return FromMatrix(res);
+//		}
+//
+//		// TODO Use DataStructures implementation once released.
+//		private static double[,] ToMultiArray(this Vector v)
+//		{
+//			double[,] res = new double[v.Count, 1];
+//			for (int i = 0; i < v.Count; i++)
+//			{
+//				res[i, 0] = v[i];
+//			}
+//
+//			return res;
+//		}
+//
+//		// TODO Use DataStructures implementation once released.
+//		private static Vector FromMatrix(IMatrix m)
+//		{
+//			double[] data = new double [m.RowCount];
+//			for (int i = 0; i < m.RowCount; i++)
+//			{
+//				data[i] = m[i, 0];
+//			}
+//
+//			return Vector.FromArray(data);
+//		}
 
 		// TODO Use DataStructures implementation once released.
 		private static Vector ApplySigmoid(this Vector v)

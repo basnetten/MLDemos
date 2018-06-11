@@ -32,8 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DataStructures, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\BasNetten.DataStructures.0.1.0\lib\net471\DataStructures.dll</HintPath>
+    <Reference Include="DataStructures, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\BasNetten.DataStructures.0.1.1\lib\net471\DataStructures.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
