@@ -9,43 +9,6 @@ namespace MLDemos
 	{
 		public static void Main(string[] args)
 		{
-//			NNet nn2X2 = new NNet(0)
-//			{
-//				Input = Vector.FromArray(new[] { 1.0, 0.5 }),
-//				Weights = new[]
-//				{
-//					new Matrix().FromArray(new[,]
-//					{
-//						{ 0.9, 0.2 },
-//						{ 0.3, 0.8 },
-//					}),
-//				}
-//			};
-//			nn2X2.FeedForward();
-//			Console.WriteLine($"nn2x2 out: {nn2X2.Output}");
-
-//			NNet nn3X3 = new NNet(1)
-//			{
-//				Input = Vector.FromArray(new[] { 0.9, 0.2, 0.8 }),
-//				Weights = new[]
-//				{
-//					new Matrix().FromArray(new[,]
-//					{
-//						{ 0.9, 0.3, 0.4 },
-//						{ 0.2, 0.8, 0.2 },
-//						{ 0.1, 0.5, 0.6 },
-//					}),
-//					new Matrix().FromArray(new[,]
-//					{
-//						{ 0.3, 0.7, 0.5 },
-//						{ 0.6, 0.5, 0.2 },
-//						{ 0.8, 0.1, 0.9 },
-//					})
-//				}
-//			};
-//			nn3X3.FeedForward();
-//			Console.WriteLine($"nn3x3 out: {nn3X3.Output}");
-
 			NNet xor = new NNet(1)
 			{
 				Input = Vector.FromArray(new[] { 1.0, 0.0 }),
@@ -65,20 +28,46 @@ namespace MLDemos
 			};
 			xor.FeedForward();
 			Console.WriteLine($"XOR: {xor.Output}");
-			Console.WriteLine(xor);
-			xor.BackPropogate(new[] { 0.1 }); // Expect 0 (becomes 0.1).
-			Console.WriteLine(xor);
-
+//			Console.WriteLine(xor);
+			xor.BackPropogate(new[] { 0.9 }); // Expect 1 (becomes 0.9).
 			xor.FeedForward();
+//			Console.WriteLine(xor);
 			Console.WriteLine($"XOR: {xor.Output}");
-			for (int i = 0; i < 100000; i++)
+
+//			xor.FeedForward();
+//			Console.WriteLine($"XOR: {xor.Output}");
+			for (int i = 0; i < 10000; i++)
 			{
 				xor.FeedForward();
 				xor.BackPropogate(new[] { 0.9 }); // Expect 0 (becomes 0.1).
 			}
 
+//
 			xor.FeedForward();
 			Console.WriteLine($"XOR: {xor.Output}");
+
+			NeuralNetwork nn = new NeuralNetwork(new[]
+			{
+				new Matrix().FromArray(new[,]
+				{
+					{ 0.9, 0.2 },
+					{ 0.3, 0.8 },
+				}),
+				new Matrix().FromArray(new[,]
+				{
+					{ 0.7, 0.6 },
+					//{ 0.3 }, //, 0.8 },
+				}),
+			});
+			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
+			nn.Epoch(new[] { 1.0, 0.0 }, new[] { 0.9 });
+			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
+			for (int i = 0; i < 10000; i++)
+			{
+				nn.Epoch(new[] { 1.0, 0.0 }, new[] { 0.9 });
+			}
+
+			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
 		}
 
 		public class NNet
@@ -128,7 +117,6 @@ namespace MLDemos
 
 					for (int destNodeI = 0; destNodeI < HiddenLayers[currentLayer].Count; destNodeI++)
 					{
-						double valCurrentDest  = HiddenLayers[currentLayer][destNodeI];
 						Vector valsSourceNodes = HiddenLayers[currentLayer - 1];
 
 						double sigma = 0d;
@@ -197,7 +185,7 @@ namespace MLDemos
 //		}
 
 		// TODO Use DataStructures implementation once released.
-		private static Vector ApplySigmoid(this Vector v)
+		internal static Vector ApplySigmoid(this Vector v)
 		{
 			double[] data = new double[v.Count];
 			for (int i = 0; i < v.Count; i++)
@@ -209,7 +197,7 @@ namespace MLDemos
 		}
 
 		// TODO Use DataStructures implementation once released.
-		private static double Sigmoid(double d)
+		internal static double Sigmoid(double d)
 		{
 			return 1d / (1 + Math.Pow(Math.E, -d));
 		}
