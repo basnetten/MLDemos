@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DataStructures.Matrices;
 using DataStructures.Vectors;
 
@@ -43,13 +44,13 @@ namespace MLDemos
 		/// <returns>The input, interpreted.</returns>
 		public Vector FeedForward(Vector input)
 		{
-			Vector previousOutput = input;
-			_previousRun[0] = input;
+			Vector previousOutput = input.Expand(1d);
+			_previousRun[0] = previousOutput;
 			int nextLayerIndex = 1;
 
 			while (nextLayerIndex < LayerCount)
 			{
-				previousOutput = (_weights[nextLayerIndex - 1] * previousOutput).ApplySigmoid();
+				previousOutput = (_weights[nextLayerIndex - 1] * previousOutput).ApplySigmoid().Expand(1d);
 
 				_previousRun[nextLayerIndex] = previousOutput;
 				nextLayerIndex++;
@@ -67,7 +68,7 @@ namespace MLDemos
 		{
 			Vector actualOutput = FeedForward(input);
 
-			Vector   error = expectedOutput - actualOutput;
+			Vector   error = expectedOutput.Expand(1d) - actualOutput;
 			double[] nextError;
 
 			// Loop over all the weight layers that need updating.
@@ -82,11 +83,15 @@ namespace MLDemos
 				nextError = new double[sourceNodes.Count];
 
 				// Loop over all the destination nodes in the current layer.
-				for (int j = 0; j < destNodes.Length; j++)
+				for (int j = 0; j < destNodes.Length - 1; j++)
 				{
 					double sigma = 0d;
 					for (int k = 0; k < sourceNodes.Count; k++)
 					{
+//						Console.WriteLine($"{k} {j}");
+//						Console.WriteLine(sourceNodes);
+//						Console.WriteLine(weights);
+
 						sigma += sourceNodes[k] * weights[j, k];
 
 						nextError[k] += error[j] * weights[j, k];
@@ -106,6 +111,12 @@ namespace MLDemos
 
 				_weights[i] += new Matrix().FromArray(deltaWeights);
 			}
+		}
+
+		public override string ToString()
+		{
+			return $"{string.Join<Matrix>(Environment.NewLine, _weights)}" +
+			       $"{Environment.NewLine}{string.Join<Vector>(Environment.NewLine, _previousRun)}";
 		}
 	}
 }

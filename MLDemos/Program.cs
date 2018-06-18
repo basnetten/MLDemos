@@ -50,24 +50,33 @@ namespace MLDemos
 			{
 				new Matrix().FromArray(new[,]
 				{
-					{ 0.9, 0.2 },
-					{ 0.3, 0.8 },
+					{ 0.9, 0.2, 0.4 },
+					{ 0.3, 0.8, 0.9 },
 				}),
 				new Matrix().FromArray(new[,]
 				{
-					{ 0.7, 0.6 },
+					{ 0.7, 0.6, 0.2 },
 					//{ 0.3 }, //, 0.8 },
 				}),
 			});
-			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
-			nn.Epoch(new[] { 1.0, 0.0 }, new[] { 0.9 });
-			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
-			for (int i = 0; i < 10000; i++)
-			{
-				nn.Epoch(new[] { 1.0, 0.0 }, new[] { 0.9 });
-			}
-
-			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
+			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 1.0 }.Get()));
+			for (int i = 0; i < 100000; i++)
+				nn.Epoch(new[] { 1.0, 1.0 }, new[] { 0.1 });
+			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 1.0 }.Get()));
+			Console.WriteLine(nn);
+//			for (int i = 0; i < 10000; i++)
+//			{
+////				nn.Epoch(new[] { 0.0, 0.0 }, new[] { 0.1 });
+//				nn.Epoch(new[] { 1.0, 0.0 }, new[] { 0.9 });
+//				nn.Epoch(new[] { 0.0, 1.0 }, new[] { 0.9 });
+////				nn.Epoch(new[] { 1.0, 1.0 }, new[] { 0.1 });
+//			}
+//
+//			Console.WriteLine(" ~~~~~ ");
+//			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 0.0, 0.0 }.Get()));
+//			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 0.0 }.Get()));
+//			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 0.0, 1.0 }.Get()));
+//			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 1.0 }.Get()));
 		}
 
 		public class NNet
@@ -191,6 +200,22 @@ namespace MLDemos
 			for (int i = 0; i < v.Count; i++)
 			{
 				data[i] = Sigmoid(v[i]);
+			}
+
+			return Vector.FromArray(data);
+		}
+
+		internal static Vector Expand(this Vector v, params double[] expansion)
+		{
+			double[] data = new double[v.Count + expansion.Length];
+			for (int i = 0; i < v.Count; i++)
+			{
+				data[i] = v[i];
+			}
+
+			for (int i = 0; i < expansion.Length; i++)
+			{
+				data[i + v.Count] = expansion[i];
 			}
 
 			return Vector.FromArray(data);
