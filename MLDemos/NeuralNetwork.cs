@@ -83,7 +83,7 @@ namespace MLDemos
 				nextError = new double[sourceNodes.Count];
 
 				// Loop over all the destination nodes in the current layer.
-				for (int j = 0; j < destNodes.Length - 1; j++)
+				for (int j = 0; j < destNodes.Count - 1; j++)
 				{
 					double sigma = 0d;
 					for (int k = 0; k < sourceNodes.Count; k++)

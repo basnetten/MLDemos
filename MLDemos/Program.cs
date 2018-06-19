@@ -50,12 +50,13 @@ namespace MLDemos
 			{
 				new Matrix().FromArray(new[,]
 				{
-					{ 0.9, 0.2, 0.4 },
-					{ 0.3, 0.8, 0.9 },
+					{ 0.9, 0.2, -0.4 },
+					{ -0.3, 0.8,- 0.9 },
+					{ -0.4, 0.9, 0.3 },
 				}),
 				new Matrix().FromArray(new[,]
 				{
-					{ 0.7, 0.6, 0.2 },
+					{ 0.7, -0.6, -0.2, 0.4 },
 					//{ 0.3 }, //, 0.8 },
 				}),
 			});
@@ -63,6 +64,8 @@ namespace MLDemos
 			for (int i = 0; i < 100000; i++)
 				nn.Epoch(new[] { 1.0, 1.0 }, new[] { 0.1 });
 			Console.WriteLine(nn.FeedForward((Vector) new VectorBuilder<Vector> { 1.0, 1.0 }.Get()));
+
+			Console.WriteLine(" NEURAL NET BELOW");
 			Console.WriteLine(nn);
 //			for (int i = 0; i < 10000; i++)
 //			{
